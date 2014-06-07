@@ -1,4 +1,43 @@
+/*
+ * Main idea:
+
+Number tree levels from bottom to top like: 0th, 1st, 2nd ...  
+
+We can traverse the whole tree, but it would take at most 2^31 vertexes to visit. I call [traversing the whole tree]: going from bottom left vertex to bottom right vertex of the tree. So we can observe that we can skip traversing some part of the tree. Since traversing tree A of level AL is the same as traversing two smaller trees with levels (AL-1) + 2*(cost to go from bottom to top (highest) vertex of tree A). Example:
+
+  +-----+4+----+  
+  +            +  
+++2++        ++6++
++   +        +   +
+1   3        5   7
+
+To traverse tree A (from 1 to 7) with level 2 is the same as traversing tree B (from 1 - 3) with level 1 twice and adding costs: from 3 to 4, from 4 to 5.
+
+Let's call m[level of tree] = min cost to traverse tree with such level from bottom left to bottom right of tree. Then we could find out what is traversal cost for each tree with arbitrary level like:
+
+ for 1..MAX_LEVEL_OF_TREE:
+    m[i] = 2 * m[i - 1] + 2 * (i - 1);
+
+We traverse tree from left to right. We shall call destination vertex d, current vertex c and level of tree where we can find c: cl. Initially c is vertex we start from. 
+We know that if we are standing at c, vertex number that is one level above c is: upRight = c + 2^cl. So if  d >= upRight we have to go to upRight vertex, because here: [c ; upRight-1] is no destination vertex.
+
+Similarly we know that if we are standing at c, vertex number that is at 0th level to the right of c is: downRight = c + 1. We should go to downRight  if: d < upRight.
+
+So finally:
+
+cost(v) - cost by going directly from bottom vertex to v. Example: cost(8) = 2, cost(16) = 3.
+
+We go up right if d >= upRight :
+[whole cost] = [whole cost] + m[cl - 1] + cost(c) + cost(upRight)
+c = c + 2^cl
+
+We go down right if if d < upRight:
+[whole cost] = [whole cost] + cost(c)
+c = c + 1
+ */
+
 package timus;
+
 public class Timus_1117_Hierarchy {
 
     static final int MAXN = 44 + 20;
@@ -108,7 +147,7 @@ public class Timus_1117_Hierarchy {
         }
 
         System.out.println(cost);
-//        System.out.println("Steps: " + steps);
+        // System.out.println("Steps: " + steps);
     }
 
     // min cost to get from bottom level (level = 0) to current vertex
